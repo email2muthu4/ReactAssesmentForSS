@@ -14,8 +14,6 @@ function App() {
       <Container>
         <div className="App">
           <Member />
-
-          
         </div>
       </Container>
     </Provider>

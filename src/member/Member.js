@@ -1,21 +1,13 @@
-import { Button, IconButton } from "@material-ui/core";
-import Paper from "@material-ui/core/Paper";
-import Table from "@material-ui/core/Table";
-import TableBody from "@material-ui/core/TableBody";
-import TableCell from "@material-ui/core/TableCell";
-import TableContainer from "@material-ui/core/TableContainer";
-import TableHead from "@material-ui/core/TableHead";
-import TableRow from "@material-ui/core/TableRow";
-import { DataGrid } from "@material-ui/data-grid";
-import ArrowDownwardIcon from "@material-ui/icons/ArrowDownward";
-import ArrowUpwardIcon from "@material-ui/icons/ArrowUpward";
+import { Button } from "@material-ui/core";
+import { DataGrid, GridToolbar } from "@material-ui/data-grid";
 import React, { useState } from "react";
 import { connect } from "react-redux";
+import Calendar from "../calendar/Calendar";
 import Events from "../events/Events";
 import { deleteMember } from "../redux/ActionTypes";
 
-function createData(id, name, age, phone, email, company) {
-  return { id, name, age, phone, email, company };
+function createData(id, name, age, phone, email, company, eventId) {
+  return { id, name, age, phone, email, company, eventId };
 }
 
 function compareValues(key, order = "asc") {
@@ -42,13 +34,39 @@ const columns = [
   { field: "name", headerName: "Name", width: 150 },
   { field: "age", headerName: "Age", width: 130 },
   { field: "phone", headerName: "phone", width: 130, sortable: false },
-  { field: "email", headerName: "Email", width: 130, sortable: false }
+  { field: "email", headerName: "Email", width: 130, sortable: false },
+  { field: "company", headerName: "Company", width: 130, sortable: false },
+  {
+    field: "eventId",
+    headerName: "Events",
+    width: 200,
+    sortable: false,
+    renderCell: params => {
+      return (
+        <strong>
+          <Button
+            id={params.value.idx}
+            name="active"
+            color="primary"
+            onClick={() => params.value.call(params.value.idx)}
+          >View on Calendar</Button>
+        </strong>
+      );
+    }
+  }
 ];
 
 function Member(props) {
   const rows = [];
-
-  props.members.map(element => {
+  const [schedulerData, setSchedulerData] = useState(null);
+  const handleChange = event => {console.log(event)
+    const eventIds = props.members[event].eventId;
+    const sData = props.events.filter(data => {
+      return eventIds.includes(data.id);
+    });
+    setSchedulerData(sData);
+  };
+  props.members.map((element, idx) => {
     rows.push(
       createData(
         element.id,
@@ -56,10 +74,13 @@ function Member(props) {
         element.age,
         element.phone,
         element.email,
-        element.company
+        element.company,
+        {idx:idx,eventIds: element.eventId, call:handleChange}
       )
     );
   });
+
+  const [eveId, seteveId] = useState(null);
   const [sortConfig, setSortConfig] = useState(null);
   const [selection, setSelection] = useState([]);
   const [filterValue, setFilterValue] = useState();
@@ -92,7 +113,20 @@ function Member(props) {
   };
 
   const onFilterChange = React.useCallback((params) => {
-      setTimeout(()=> console.log(params.api.state.visibleRows.visibleRows));
+      setTimeout(()=> {
+        const idx = params.api.state.visibleRows.visibleRows;
+        if(idx && idx.length) {
+          let eveId =[];
+          idx.map(id => {
+            const mem = rows[id-1];
+            eveId = eveId.concat(mem.eventId);
+            eveId = [...new Set(eveId)];
+          });
+          seteveId(eveId);
+        } else {
+          seteveId(null);
+        }
+      },0);
     setFilterValue(params.filterModel.items[0].value);
     
   }, []);
@@ -106,8 +140,16 @@ function Member(props) {
       <div style={{ height: 400, width: "100%" }}>
         <DataGrid
           rows={rows}
-          columns={columns}
+          columns={columns.map((column) => ({
+            ...column,
+            disableClickEventBubbling: true,
+          }))}
           pageSize={5}
+          showToolbar
+          components={{
+            Toolbar: GridToolbar,
+          }}
+          disableClickEventBubbling
           checkboxSelection
           onSelectionChange={newSelection => {
             setSelection(newSelection.rowIds);
@@ -116,7 +158,7 @@ function Member(props) {
           onFilterModelChange={onFilterChange}
         />
       </div>
-      <TableContainer component={Paper}>
+      {/* <TableContainer component={Paper}>
         <Table aria-label="simple table">
           <TableHead>
             <TableRow>
@@ -176,8 +218,10 @@ function Member(props) {
             ))}
           </TableBody>
         </Table>
-      </TableContainer>
-      <Events />
+      </TableContainer> */}
+      <Events eveId={eveId}/>
+      <h2> Calendar</h2>
+      <Calendar schedulerData={schedulerData}/>
     </div>
     
   );
@@ -185,7 +229,8 @@ function Member(props) {
 
 const mapStateToProps = state => {
   return {
-    members: state.membersReducer.members
+    members: state.membersReducer.members,
+    events: state.eventReducer.events
   };
 };
 

@@ -36,7 +36,7 @@ export const fetchEvents = () =>{
     }
 }
 
-export const updateEvent = (payload) =>{
+export const updateEvent = (payload) =>{console.log(payload);
     return {
         type: UPDATE_EVENT,
         payload: payload
