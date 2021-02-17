@@ -3,8 +3,10 @@ import { DataGrid, GridToolbar } from "@material-ui/data-grid";
 import React, { useState } from "react";
 import { connect } from "react-redux";
 import Calendar from "../calendar/Calendar";
+import CalenderModal from "../calendar/modal";
 import Events from "../events/Events";
 import { deleteMember } from "../redux/ActionTypes";
+
 
 function createData(id, name, age, phone, email, company, eventId) {
   return { id, name, age, phone, email, company, eventId };
@@ -44,12 +46,13 @@ const columns = [
     renderCell: params => {
       return (
         <strong>
-          <Button
+          <CalenderModal idx={params.value.idx} />
+          {/* <Button
             id={params.value.idx}
             name="active"
             color="primary"
             onClick={() => params.value.call(params.value.idx)}
-          >View on Calendar</Button>
+          >View on Calendar</Button> */}
         </strong>
       );
     }
@@ -58,14 +61,6 @@ const columns = [
 
 function Member(props) {
   const rows = [];
-  const [schedulerData, setSchedulerData] = useState(null);
-  const handleChange = event => {console.log(event)
-    const eventIds = props.members[event].eventId;
-    const sData = props.events.filter(data => {
-      return eventIds.includes(data.id);
-    });
-    setSchedulerData(sData);
-  };
   props.members.map((element, idx) => {
     rows.push(
       createData(
@@ -75,7 +70,7 @@ function Member(props) {
         element.phone,
         element.email,
         element.company,
-        {idx:idx,eventIds: element.eventId, call:handleChange}
+        {idx:idx,eventIds: element.eventId}
       )
     );
   });
@@ -84,6 +79,7 @@ function Member(props) {
   const [sortConfig, setSortConfig] = useState(null);
   const [selection, setSelection] = useState([]);
   const [filterValue, setFilterValue] = useState();
+  const [open, setOpen] = useState(false);
 
   if (sortConfig !== null) {
     rows.sort(compareValues(sortConfig.key, sortConfig.direction));
@@ -119,7 +115,7 @@ function Member(props) {
           let eveId =[];
           idx.map(id => {
             const mem = rows[id-1];
-            eveId = eveId.concat(mem.eventId);
+            eveId = eveId.concat(mem.eventId.eventIds);
             eveId = [...new Set(eveId)];
           });
           seteveId(eveId);
@@ -130,6 +126,12 @@ function Member(props) {
     setFilterValue(params.filterModel.items[0].value);
     
   }, []);
+
+ 
+
+  const cal = (
+    <Calendar />
+  );
   
   return (
     <div>
@@ -221,7 +223,8 @@ function Member(props) {
       </TableContainer> */}
       <Events eveId={eveId}/>
       <h2> Calendar</h2>
-      <Calendar schedulerData={schedulerData}/>
+    
+     
     </div>
     
   );
