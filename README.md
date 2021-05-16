@@ -2,6 +2,14 @@
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
+## Project Info:
+
+1.Displaying members list and event list in table view. One member can participate in multiple event based on scheduling time. On member table, there is an open modal button to  open the calendar view to display the event date and timing. 
+
+2.Here I'm using React materials for the table view, hence it has been all the functionalities in the building. So if you filter member in the member table, event table also filters and display filter member event list only
+
+
+
 ## Available Scripts
 
 In the project directory, you can run:
@@ -68,3 +76,12 @@ This section has moved here: [https://facebook.github.io/create-react-app/docs/d
 ### `yarn build` fails to minify
 
 This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+
+### Demo Screen shots
+
+![image](https://user-images.githubusercontent.com/79105094/118396585-d10e5500-b66d-11eb-8f27-7fa3d6aab6a3.png)
+
+![image](https://user-images.githubusercontent.com/79105094/118396656-20ed1c00-b66e-11eb-93f5-ec2f5a8cc985.png)
+
+
+
